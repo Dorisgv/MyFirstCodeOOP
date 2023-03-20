@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Runtime.Serialization;
 using System.Text;
 
@@ -18,42 +19,70 @@ namespace MyFirstCodeOOP
         #region Constructor
         public Date(int year, int month, int day) 
         {
-            this._year = year;
-            this._month = ValidateMonth(month);
-            this._day = ValidateDay(day, month);
+            //Es igual si colocamos el .this? --antes del _year.
+           _year = ValidateYear(year);
+           _month = ValidateMonth(month);
+           _day = ValidateDay(year, month, day);
         }
         #endregion
-
+        //Creamos el validador del año, creacion del METODO.
         #region Methods
-        public override string ToString()
+        private int ValidateYear(int year)
         {
-            return $"{_year:0000}/{_month:00}/{_day:00}";
+            if (year >= 1900)
+
+            {
+                return year;
+            }
+
+            throw new YearException(String.Format("The year {0} is invalid.", year));
         }
 
         //Vamos a crear el validador de los dias.
         //Creacion del METODO.
 
-        private int ValidateDay(int day, int month)
+        private int ValidateDay (int year, int month, int day)
         {
-            if (month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12)
+            if (month == 2 && day == 29 && IsLeapYear(year)) 
             {
-                if 
+                return day;
             }
+
+            int[] daysPerMont = { 0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+            if (day >= 1 && day <= daysPerMont[month])
+            {
+                return day;
+            }
+
+            throw new DayException(String.Format("The day {0} doesn't exist for month{1}.", day, month));
         }
 
         private int ValidateMonth(int month)
         {
-            if (month <= 1 && month <= 12)
+            if (month >= 1 && month <= 12)
             {
                 return month;
             }
 
-            throw new MonthException("The month is invalid!");
+            throw new MonthException(String.Format("The month {0} is invalid.", month));
         }
 
+        public override string ToString()
+        {
+            return String.Format("{0:00}/{1:00}/{2:00}", _year, _month, _day);
+        }
+
+        private bool IsLeapYear(int year)
+        {
+            return year % 400 == 0 || year % 4 == 0 && year % 100 != 0;
+        }
+
+        
 
         #endregion
     }
+
+    //Que puedo hacer con esto?
 
     [Serializable]
     internal class MonthException : Exception
